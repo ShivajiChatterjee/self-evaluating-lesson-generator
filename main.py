@@ -5,6 +5,8 @@ from src.graph import graph
 
 initial_state = {
     "topic": "Introduction to RAG",
+    "grounding_context": "",
+    "sources": [],
     "lesson": "",
     "evaluation": {},
     "retry_count": 0,
