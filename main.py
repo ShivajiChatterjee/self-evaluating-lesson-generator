@@ -12,6 +12,8 @@ initial_state = {
 }
 
 result = graph.invoke(initial_state)
-print("=== GROUNDING LOADED ===")
-print(f"Sources: {len(result['sources'])}")
-print(f"Characters loaded: {len(result['grounding_context'])}")
+print("=== GENERATED LESSON ===")
+print(result["lesson"])
+print("\n=== RUN SUMMARY ===")
+print(f"Sources used: {len(result['sources'])}")
+print(f"Lesson characters: {len(result['lesson'])}")
