@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from src.graph import graph
 
 
@@ -14,4 +12,6 @@ initial_state = {
 }
 
 result = graph.invoke(initial_state)
-pprint(result, sort_dicts=False)
+print("=== GROUNDING LOADED ===")
+print(f"Sources: {len(result['sources'])}")
+print(f"Characters loaded: {len(result['grounding_context'])}")
