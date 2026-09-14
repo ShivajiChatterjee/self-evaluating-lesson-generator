@@ -4,3 +4,5 @@ python-dotenv
 pydantic
 fastapi
 uvicorn
+reportlab
+markdown-it-py

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Generate, evaluate, and correct grounded beginner lessons.">
+    <title>Self-Evaluating Lesson Generator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.12/marked.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.4/purify.min.js"></script>
+    <script defer src="/static/app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <p class="eyebrow">Content systems workbench</p>
+        <h1>Self-Evaluating Lesson Generator</h1>
+        <p class="dek">Researches a topic, writes a beginner lesson, evaluates it, and corrects it before shipping.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="control-panel" aria-labelledby="generator-heading">
+        <div class="control-copy">
+          <p class="section-number">01 / Input</p>
+          <h2 id="generator-heading">Build a grounded lesson</h2>
+        </div>
+
+        <form id="lesson-form" class="topic-form" novalidate>
+          <div class="field-group">
+            <label for="topic">Topic</label>
+            <input
+              id="topic"
+              name="topic"
+              type="text"
+              placeholder="e.g. Introduction to RAG"
+              autocomplete="off"
+              aria-describedby="topic-hint topic-error"
+              required
+            >
+            <p id="topic-hint" class="field-hint">Enter any educational topic you want the system to research and teach.</p>
+            <p id="topic-error" class="field-error" role="alert" hidden></p>
+          </div>
+          <button id="generate-button" type="submit">Generate lesson</button>
+        </form>
+
+        <div id="loading-state" class="loading-state" aria-live="polite" hidden>
+          <span class="activity-mark" aria-hidden="true"></span>
+          <div>
+            <strong>Running the lesson-quality workflow...</strong>
+            <p>Research, writing, and evaluation can take a moment.</p>
+          </div>
+        </div>
+
+        <div id="error-banner" class="error-banner" role="alert" hidden></div>
+      </section>
+
+      <section id="failure-view" class="failure-view" role="status" tabindex="-1" hidden>
+        <h2>Lesson did not clear the quality checks.</h2>
+        <p>The system could not produce a lesson that satisfied all quality checks within the allowed retries. Please try again.</p>
+      </section>
+
+      <article id="result-view" class="lesson-panel result-view" aria-labelledby="lesson-heading" tabindex="-1" hidden>
+        <div class="panel-heading">
+          <h2 id="lesson-heading">Final Lesson</h2>
+        </div>
+        <div id="lesson-content" class="lesson-content"></div>
+        <div id="artifact-links" class="lesson-downloads" hidden>
+          <a id="download-pdf" class="download-link primary" href="">Download PDF</a>
+          <a id="download-markdown" class="download-link" href="">Download Markdown</a>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <p>Beginner-focused lessons for clear, practical learning</p>
+    </footer>
+  </body>
+</html>

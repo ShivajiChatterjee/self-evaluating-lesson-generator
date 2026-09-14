@@ -1,5 +1,6 @@
 import argparse
 
+from src.artifacts import create_lesson_artifacts
 from src.workflow import run_lesson_workflow
 
 
@@ -10,14 +11,16 @@ parser.add_argument("--topic", default="Introduction to RAG")
 args = parser.parse_args()
 
 result = run_lesson_workflow(args.topic)
+artifacts = create_lesson_artifacts(result)
+lesson = artifacts["presentation_lesson"] if artifacts else result["lesson"]
 print("=== GENERATED LESSON ===")
-print(result["lesson"])
+print(lesson)
 print("\n=== RUN SUMMARY ===")
 print(f"Sources used: {len(result['sources'])}")
 for source in result["sources"]:
     print(f"- {source}")
-print(f"Lesson words: {len(result['lesson'].split())}")
-print(f"Lesson characters: {len(result['lesson'])}")
+print(f"Lesson words: {len(lesson.split())}")
+print(f"Lesson characters: {len(lesson)}")
 print(f"Retries used: {result['retry_count']}")
 print(f"Rejected attempts: {len(result['rejection_history'])}")
 print(f"Memory guidance loaded: {len(result['memory_guidance'])}")
@@ -41,3 +44,13 @@ if result["rejection_history"]:
         print(f"Attempt {rejection['attempt']} rejected:")
         for check in rejection["failed_checks"]:
             print(f"- {check['criterion']}")
+
+print("\n=== ARTIFACTS ===")
+if artifacts:
+    print(f"Markdown: {artifacts['markdown_path']}")
+    print(f"PDF: {artifacts['pdf_path']}")
+    print(f"Rejection log: {artifacts['rejection_log_path']}")
+    cleanup_status = "applied" if artifacts["cleanup_applied"] else "fallback/raw"
+    print(f"Presentation cleanup: {cleanup_status}")
+else:
+    print("Not created because the lesson did not clear the quality gate.")
