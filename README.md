@@ -354,7 +354,7 @@ Evaluation, retry, rejection, source, memory, and artifact metadata remain avail
 ### Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/ShivajiChatterjee/self-evaluating-lesson-generator.git
 cd nxtwave
 ```
 
