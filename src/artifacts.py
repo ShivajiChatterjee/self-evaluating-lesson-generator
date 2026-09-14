@@ -41,6 +41,30 @@ information. Return only the complete lesson with no commentary or wrapper code 
 
 URL_PATTERN = re.compile(r"https?://[^\s<>\"']+")
 
+_HORIZONTAL_BOX_CHARACTERS = "─━┄┅┈┉╌╍═╴╶╸╺╼╾"
+_VERTICAL_BOX_CHARACTERS = "│┃┆┇┊┋╎╏║╵╷╹╻╽╿"
+_CORNER_AND_INTERSECTION_CHARACTERS = "".join(
+    chr(code_point)
+    for first, last in ((0x250C, 0x254B), (0x2552, 0x2570))
+    for code_point in range(first, last + 1)
+)
+_PDF_DIAGRAM_TRANSLATION = str.maketrans(
+    {
+        **{character: "-" for character in _HORIZONTAL_BOX_CHARACTERS},
+        **{character: "|" for character in _VERTICAL_BOX_CHARACTERS},
+        **{character: "+" for character in _CORNER_AND_INTERSECTION_CHARACTERS},
+        "╱": "/",
+        "╲": "\\",
+        "╳": "x",
+        "▼": "v",
+        "↓": "v",
+        "▲": "^",
+        "↑": "^",
+        "►": ">",
+        "◄": "<",
+    }
+)
+
 
 def validate_whitespace_cleanup(raw_lesson: str, cleaned_lesson: str) -> bool:
     raw_without_whitespace = "".join(raw_lesson.split())
@@ -50,6 +74,10 @@ def validate_whitespace_cleanup(raw_lesson: str, cleaned_lesson: str) -> bool:
         and URL_PATTERN.findall(raw_lesson) == URL_PATTERN.findall(cleaned_lesson)
         and raw_lesson.count("```") == cleaned_lesson.count("```")
     )
+
+
+def _prepare_pdf_code_block(code: str) -> str:
+    return code.translate(_PDF_DIAGRAM_TRANSLATION)
 
 
 def _request_cleanup(raw_lesson: str) -> str:
@@ -194,7 +222,11 @@ def _render_blocks(
             flowables.append(rendered_list)
         elif token.type in {"fence", "code_block"}:
             flowables.append(
-                Preformatted(token.content.rstrip(), styles["LessonCode"], maxLineLength=92)
+                Preformatted(
+                    _prepare_pdf_code_block(token.content),
+                    styles["LessonCode"],
+                    maxLineLength=92,
+                )
             )
             index += 1
         elif token.type == "hr":
