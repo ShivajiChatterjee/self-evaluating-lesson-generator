@@ -4,19 +4,20 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from src.resources import load_learning_resources
+from src.gemini_utils import extract_response_text
 from src.state import LessonState
 
 
 SYSTEM_INSTRUCTION = """You are a beginner-focused technical educator.
 Teach a learner who completed 12th grade in India, may come from a non-English-medium
-background, has limited English vocabulary, has no previous AI knowledge, and wants
-to begin a career in AI. Use simple English, introduce ideas before technical terms,
-explain technical words when first used, and prefer short, clear sentences.
+background, has limited English vocabulary, has no previous knowledge of the requested
+topic, and wants to begin an AI or technology learning journey. Use simple English,
+introduce ideas before technical terms, explain technical words when first used, and
+prefer short, clear sentences.
 
-Keep factual explanations consistent with the supplied trusted reference. You may
+Keep factual explanations consistent with the supplied trusted research context. You may
 simplify and reorganize its facts and create analogies or beginner examples, but do
-not introduce unsupported technical claims. If the reference does not support a
+not introduce unsupported technical claims. If the research context does not support a
 technical claim, leave it out."""
 
 LESSON_REQUIREMENTS = """Write a standalone beginner-friendly Markdown chapter that reads
@@ -31,6 +32,9 @@ Build a natural progression by introducing prerequisite ideas before concepts th
 on them. Give supported concepts enough depth, but do not invent material or add sections
 merely to increase breadth or length.
 
+Ensure the chapter explains what the requested topic is, why it matters, and how it works,
+along with the important topic-specific concepts supported by the grounding context.
+
 Use descriptive topic titles for section and subsection headings. Avoid headings phrased as
 questions, including forms such as "What is ...", "Why ...", "How does ...", "When ...",
 and "What are ...". Do not structure the chapter as a sequence of questions and answers.
@@ -38,14 +42,15 @@ Use connected explanatory paragraphs as the primary teaching style. Use bullet o
 lists only when they genuinely improve clarity, and use subsections when deeper explanation
 is useful.
 
-Include at least one useful text-based workflow or diagram, at least one everyday analogy,
-and at least one realistic practical example. Place them where they naturally support the
+Include a useful text-based workflow or diagram when the topic benefits from showing a
+process. Include at least one meaningful everyday analogy when it helps explain the topic
+and at least one concrete practical example. Place them where they naturally support the
 surrounding explanation. Include a clear concluding summary or set of key takeaways.
 
 Near the end, include a clearly identifiable Further Learning section. Select only resources
 that are relevant to concepts actually taught in the chapter. For each selected resource,
 include its title as a clickable Markdown link and one short explanation of what the learner
-can study there. Use only URLs supplied in the curated learning resources. Never invent,
+can study there. Use only URLs supplied in the verified research sources. Never invent,
 reconstruct, guess, or modify a URL, and do not add irrelevant links for variety.
 
 Before returning the lesson, ensure normal word spacing, punctuation, Markdown formatting,
@@ -69,23 +74,8 @@ Do not refer to this guidance, previous runs, evaluation, rubrics, retries, or l
 in the lesson unless a term is genuinely required by the lesson topic."""
 
 
-def _extract_response_text(response: types.GenerateContentResponse) -> str:
-    if (
-        not response.candidates
-        or not response.candidates[0].content
-        or not response.candidates[0].content.parts
-    ):
-        return ""
-
-    text = ""
-    for part in response.candidates[0].content.parts:
-        if part.thought or not isinstance(part.text, str):
-            continue
-        if text and part.text and text[-1].isalnum() and part.text[0].isalnum():
-            text += " "
-        text += part.text
-
-    return text
+def _format_sources(sources: list[str]) -> str:
+    return "\n".join(f"- {source}" for source in sources)
 
 
 def _request_lesson(generation_request: str) -> str:
@@ -106,7 +96,7 @@ def _request_lesson(generation_request: str) -> str:
         ),
     )
 
-    generated_lesson = _extract_response_text(response).strip()
+    generated_lesson = extract_response_text(response).strip()
     if not generated_lesson:
         raise ValueError("Gemini returned an empty lesson.")
 
@@ -115,7 +105,7 @@ def _request_lesson(generation_request: str) -> str:
 
 def generate_lesson(state: LessonState) -> dict:
     memory_section = _format_memory_guidance(state["memory_guidance"])
-    learning_resources = load_learning_resources()
+    sources = _format_sources(state["sources"])
     generation_request = f"""Topic:
 {state['topic']}
 
@@ -125,14 +115,17 @@ Lesson requirements:
 Trusted grounding context:
 {state['grounding_context']}
 
-Curated learning resources (for Further Learning links only, not factual grounding):
-{learning_resources}{memory_section}"""
+Verified research sources:
+{sources}
+
+Use these sources only for Further Learning links. Do not invent or modify URLs.
+{memory_section}"""
     return {"lesson": _request_lesson(generation_request)}
 
 
 def regenerate_lesson(state: LessonState) -> dict:
     memory_section = _format_memory_guidance(state["memory_guidance"])
-    learning_resources = load_learning_resources()
+    sources = _format_sources(state["sources"])
     failed_feedback = "\n\n".join(
         f"Criterion: {check['criterion']}\n"
         f"Reason: {check['reason']}\n"
@@ -150,8 +143,10 @@ Lesson requirements:
 Trusted grounding context:
 {state['grounding_context']}
 
-Curated learning resources (for Further Learning links only, not factual grounding):
-{learning_resources}
+Verified research sources:
+{sources}
+
+Use these sources only for Further Learning links. Do not invent or modify URLs.
 
 Current lesson to replace:
 {state['lesson']}

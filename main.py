@@ -1,22 +1,21 @@
-from src.graph import graph
+import argparse
+
+from src.workflow import run_lesson_workflow
 
 
-initial_state = {
-    "topic": "Introduction to RAG",
-    "grounding_context": "",
-    "sources": [],
-    "memory_guidance": [],
-    "lesson": "",
-    "evaluation": {},
-    "retry_count": 0,
-    "rejection_history": [],
-}
+parser = argparse.ArgumentParser(
+    description="Generate and evaluate a grounded beginner lesson."
+)
+parser.add_argument("--topic", default="Introduction to RAG")
+args = parser.parse_args()
 
-result = graph.invoke(initial_state)
+result = run_lesson_workflow(args.topic)
 print("=== GENERATED LESSON ===")
 print(result["lesson"])
 print("\n=== RUN SUMMARY ===")
 print(f"Sources used: {len(result['sources'])}")
+for source in result["sources"]:
+    print(f"- {source}")
 print(f"Lesson words: {len(result['lesson'].split())}")
 print(f"Lesson characters: {len(result['lesson'])}")
 print(f"Retries used: {result['retry_count']}")

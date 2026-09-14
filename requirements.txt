@@ -2,3 +2,5 @@ langgraph
 google-genai
 python-dotenv
 pydantic
+fastapi
+uvicorn

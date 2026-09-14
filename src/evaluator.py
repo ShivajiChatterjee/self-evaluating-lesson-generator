@@ -40,26 +40,26 @@ grounding context rather than relying only on your internal knowledge. Do not re
 the lesson."""
 
 RUBRIC = """1. ACCURATE_AND_GROUNDED
-PASS only when RAG explanations are consistent with the trusted context, contain no
-important unsupported technical claims, and do not describe standard RAG as retraining
-or permanently changing model weights during each query.
+PASS only when technical and factual explanations are consistent with the supplied research
+context, contain no important unsupported claims, and do not contradict the research.
 
 2. BEGINNER_FRIENDLY
-PASS only when a learner with no AI background can follow the lesson, the language is
-simple enough for the stated audience, and no advanced technical knowledge is assumed.
+PASS only when a learner with no previous knowledge of the requested topic can follow the
+lesson, the language is simple enough for the stated audience, and no advanced technical
+knowledge is assumed.
 
 3. TEACHES_BY_EXAMPLE
-PASS only when the lesson has an understandable analogy and a practical RAG example,
-and both genuinely help explain the concept.
+PASS only when the lesson uses an understandable analogy when appropriate and includes a
+concrete practical example that genuinely helps explain the requested topic.
 
 4. JARGON_CONTROL
 PASS only when important technical words are explained when first introduced,
 unexplained terminology does not block understanding, and jargon is not unnecessary.
 
 5. KEY_POINTS_COVERED
-PASS only when the lesson adequately explains the problem RAG solves, what RAG is,
-why it is useful, retrieval, retrieved context, generation, the basic question to
-retrieval to context to answer flow, and how RAG context differs from model training.
+PASS only when the lesson adequately covers the essential concepts needed to understand
+the requested topic, including what it is, why it matters, how it works, and the important
+topic-specific concepts supported by the supplied research context.
 
 6. COHERENT_TEACHING_FLOW
 PASS only when ideas follow a sensible learning order, sections connect logically,
