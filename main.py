@@ -18,6 +18,8 @@ print("\n=== RUN SUMMARY ===")
 print(f"Sources used: {len(result['sources'])}")
 print(f"Lesson words: {len(result['lesson'].split())}")
 print(f"Lesson characters: {len(result['lesson'])}")
+print(f"Retries used: {result['retry_count']}")
+print(f"Rejected attempts: {len(result['rejection_history'])}")
 print("\n=== EVALUATION ===")
 for check in result["evaluation"]["checks"]:
     status = "PASS" if check["passed"] else "FAIL"
@@ -29,3 +31,10 @@ for check in result["evaluation"]["checks"]:
 
 overall_status = "PASS" if result["evaluation"]["overall_pass"] else "FAIL"
 print(f"OVERALL: {overall_status}")
+
+if result["rejection_history"]:
+    print("\n=== REJECTION SUMMARY ===")
+    for rejection in result["rejection_history"]:
+        print(f"Attempt {rejection['attempt']} rejected:")
+        for check in rejection["failed_checks"]:
+            print(f"- {check['criterion']}")

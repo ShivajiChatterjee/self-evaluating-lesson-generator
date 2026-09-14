@@ -34,22 +34,13 @@ Follow this teaching flow:
 8. Short recap."""
 
 
-def generate_lesson(state: LessonState) -> dict:
+def _request_lesson(generation_request: str) -> str:
     load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY is not set. Add it to the .env file.")
 
     model = os.getenv("GENERATOR_MODEL") or "gemini-3.6-flash"
-    generation_request = f"""Topic:
-{state['topic']}
-
-Lesson requirements:
-{LESSON_REQUIREMENTS}
-
-Trusted grounding context:
-{state['grounding_context']}"""
-
     client = genai.Client(api_key=api_key)
     response = client.models.generate_content(
         model=model,
@@ -65,4 +56,52 @@ Trusted grounding context:
     if not generated_lesson:
         raise ValueError("Gemini returned an empty lesson.")
 
-    return {"lesson": generated_lesson}
+    return generated_lesson
+
+
+def generate_lesson(state: LessonState) -> dict:
+    generation_request = f"""Topic:
+{state['topic']}
+
+Lesson requirements:
+{LESSON_REQUIREMENTS}
+
+Trusted grounding context:
+{state['grounding_context']}"""
+    return {"lesson": _request_lesson(generation_request)}
+
+
+def regenerate_lesson(state: LessonState) -> dict:
+    failed_feedback = "\n\n".join(
+        f"Criterion: {check['criterion']}\n"
+        f"Reason: {check['reason']}\n"
+        f"Evidence: {check['evidence']}\n"
+        f"Required fix: {check['required_fix']}"
+        for check in state["evaluation"]["checks"]
+        if not check["passed"]
+    )
+    regeneration_request = f"""Topic:
+{state['topic']}
+
+Lesson requirements:
+{LESSON_REQUIREMENTS}
+
+Trusted grounding context:
+{state['grounding_context']}
+
+Current lesson to replace:
+{state['lesson']}
+
+Failed checks and required corrections:
+{failed_feedback}
+
+Produce a complete standalone replacement lesson in Markdown, not a patch or diff.
+Correct every failed criterion while preserving good parts of the current lesson where possible.
+Avoid unnecessary rewrites and remain consistent with the trusted grounding context.
+Do not mention the evaluator, retry process, rejection, rubric, feedback, or previous attempt."""
+
+    regenerated_lesson = _request_lesson(regeneration_request)
+    return {
+        "lesson": regenerated_lesson,
+        "retry_count": state["retry_count"] + 1,
+    }
