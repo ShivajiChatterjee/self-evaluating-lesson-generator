@@ -18,8 +18,11 @@ simplify and reorganize its facts and create analogies or beginner examples, but
 not introduce unsupported technical claims. If the reference does not support a
 technical claim, leave it out."""
 
-LESSON_REQUIREMENTS = """Write a standalone Markdown lesson of approximately 800-1200 words.
-Use clear headings, at least one everyday analogy, and at least one practical RAG example.
+LESSON_REQUIREMENTS = """Write a standalone beginner-friendly Markdown lesson.
+Aim for roughly 1000-1400 words, but prioritize clarity and complete beginner understanding over exact length.
+Avoid unnecessary repetition and unnecessary advanced detail.
+Use clear headings and include at least one simple text-based workflow showing the RAG process.
+Include at least one everyday analogy and at least one practical RAG example.
 Follow this teaching flow:
 1. What problem are we trying to solve?
 2. What is RAG?
@@ -37,7 +40,7 @@ def generate_lesson(state: LessonState) -> dict:
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY is not set. Add it to the .env file.")
 
-    model = os.getenv("GENERATOR_MODEL") or "gemini-3.8-flash"
+    model = os.getenv("GENERATOR_MODEL") or "gemini-3.6-flash"
     generation_request = f"""Topic:
 {state['topic']}
 
@@ -54,6 +57,7 @@ Trusted grounding context:
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
             temperature=0.4,
+            thinking_config=types.ThinkingConfig(thinking_level="minimal"),
         ),
     )
 

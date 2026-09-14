@@ -16,4 +16,16 @@ print("=== GENERATED LESSON ===")
 print(result["lesson"])
 print("\n=== RUN SUMMARY ===")
 print(f"Sources used: {len(result['sources'])}")
+print(f"Lesson words: {len(result['lesson'].split())}")
 print(f"Lesson characters: {len(result['lesson'])}")
+print("\n=== EVALUATION ===")
+for check in result["evaluation"]["checks"]:
+    status = "PASS" if check["passed"] else "FAIL"
+    print(f"{check['criterion']}: {status}")
+    print(f"Reason: {check['reason']}")
+    if check["required_fix"]:
+        print(f"Required fix: {check['required_fix']}")
+    print()
+
+overall_status = "PASS" if result["evaluation"]["overall_pass"] else "FAIL"
+print(f"OVERALL: {overall_status}")
