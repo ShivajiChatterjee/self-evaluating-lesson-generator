@@ -13,7 +13,9 @@ def load_grounding_context(state: LessonState) -> dict:
     return {
         "grounding_context": REFERENCE_PATH.read_text(encoding="utf-8"),
         "sources": [
-            "Lewis et al. (2020), Retrieval-Augmented Generation",
-            "AWS, Retrieval Augmented Generation - Amazon SageMaker AI",
+            "Lewis et al., Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+            "Microsoft Learn, Retrieval augmented generation and indexes",
+            "AWS, Retrieval Augmented Generation",
+            "Google Cloud, What is Retrieval-Augmented Generation?",
         ],
     }

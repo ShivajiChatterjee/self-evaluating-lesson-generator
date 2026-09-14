@@ -5,6 +5,7 @@ initial_state = {
     "topic": "Introduction to RAG",
     "grounding_context": "",
     "sources": [],
+    "memory_guidance": [],
     "lesson": "",
     "evaluation": {},
     "retry_count": 0,
@@ -20,6 +21,9 @@ print(f"Lesson words: {len(result['lesson'].split())}")
 print(f"Lesson characters: {len(result['lesson'])}")
 print(f"Retries used: {result['retry_count']}")
 print(f"Rejected attempts: {len(result['rejection_history'])}")
+print(f"Memory guidance loaded: {len(result['memory_guidance'])}")
+for guidance in result["memory_guidance"]:
+    print(f"- {guidance}")
 print("\n=== EVALUATION ===")
 for check in result["evaluation"]["checks"]:
     status = "PASS" if check["passed"] else "FAIL"
